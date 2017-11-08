@@ -128,4 +128,40 @@ sim_regression = function(n, beta0, beta1) {
 }
 ```
 
+### LoTR function!!
+
+Repeating code 3x was a real burden when we were reading in the LoTR data -- but now we can write a function to do it!
+
+First thing to do is identify the inputs. In this case, what changes across code chunks is the cell range and movie title. I'll also include the path to the spreadsheet as an argument, in case I need to access it from somewhere else.
+
+Give those inputs, the body of my function is, essentially, the code I already wrote -- I'll copy that in.
+
+Lastly, I need to define my output. The code I have produces a dataframe, and that's a pretty okay output format.  
+
+The function to abstract this process is below.
+
+```{r}
+library(readxl)
+library(janitor)
+
+lotr_word_reader = function(path = "./data/LotR_Words.xlsx", cell_range, movie_name) {
+  
+  df = read_excel(path, range = cell_range) %>%
+    clean_names() %>%
+    gather(key = sex, value = words, female:male) %>%
+    mutate(race = tolower(race),
+           movie = movie_name)
+  
+  df
+  
+}
+
+bind_rows(
+  lotr_word_reader(cell_range = "B3:D6", movie_name = "Fellowship"),
+  lotr_word_reader(cell_range = "F3:H6", movie_name = "Two Towers"),
+  lotr_word_reader(cell_range = "J3:L6", movie_name = "Return")
+)
+
+```
+
 

@@ -172,8 +172,35 @@ z_score(x)</code></pre>
   
 }</code></pre>
 </div>
-<div id="including-plots" class="section level2">
-<h2>Including Plots</h2>
+<div id="multiple-outputs" class="section level2">
+<h2>Multiple outputs</h2>
+<p>Add mean and sd to output …</p>
+<pre class="r"><code>z_score = function(x) {
+  
+  if (!is.numeric(x)) {
+    stop(&quot;x must be numeric&quot;)
+  } else if (length(x) &lt; 3) {
+    stop(&quot;x must have three or more entries&quot;)
+  }
+  
+  mean_x = mean(x)
+  sd_x = sd(x)
+  z = mean_x / sd_x
+  
+  data_frame(mean = mean_x,
+             sd = sd_x,
+             z = z)
+  
+}
+
+z_score(x)</code></pre>
+<pre><code>## # A tibble: 1 x 3
+##        mean       sd         z
+##       &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;
+## 1 0.1686652 0.950108 0.1775222</code></pre>
+<div id="a-bit-more-interesting" class="section level3">
+<h3>A bit more interesting …</h3>
+</div>
 </div>
 
 

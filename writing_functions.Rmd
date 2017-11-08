@@ -62,9 +62,36 @@ z_score = function(x) {
 }
 ```
 
+## Multiple outputs
+
+Add mean and sd to output ...
 
 
-## Including Plots
+```{r}
+z_score = function(x) {
+  
+  if (!is.numeric(x)) {
+    stop("x must be numeric")
+  } else if (length(x) < 3) {
+    stop("x must have three or more entries")
+  }
+  
+  mean_x = mean(x)
+  sd_x = sd(x)
+  z = mean_x / sd_x
+  
+  data_frame(mean = mean_x,
+             sd = sd_x,
+             z = z)
+  
+}
+
+z_score(x)
+```
+
+
+### A bit more interesting ...
+
 
 
 

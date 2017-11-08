@@ -92,6 +92,40 @@ z_score(x)
 
 ### A bit more interesting ...
 
+Starting code.
 
+```{r}
+sim_data = tibble(
+  x = runif(30),
+  y = 2 + 3 * x + rnorm(30, 0, 1)
+)
+
+ggplot(sim_data, aes(x = x, y = y)) + geom_point()
+
+ls_fit = lm(y ~ x, data = sim_data)
+  
+beta0_hat = coef(ls_fit)[1]
+beta1_hat = coef(ls_fit)[2]
+```
+
+Let's write a function to simulate SLR and produce estimates ...
+
+```{r}
+sim_regression = function(n, beta0, beta1) {
+  
+  sim_data = tibble(
+    x = runif(n),
+    y = beta0 + beta1 * x + rnorm(n, 0, 1)
+  )
+
+  ls_fit = lm(y ~ x, data = sim_data)
+  
+  tibble(
+    beta0_hat = coef(ls_fit)[1],
+    beta1_hat = coef(ls_fit)[2]
+  )
+  
+}
+```
 
 

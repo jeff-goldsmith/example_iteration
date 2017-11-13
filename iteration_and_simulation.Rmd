@@ -80,7 +80,6 @@ output = map(df, median)
 ```{r, error = TRUE}
 output = map_dbl(df, z_score)
 output = map_lgl(df, z_score)
-
 ```
 
 ```{r}
@@ -173,5 +172,71 @@ output = map_df(urls, read_page_reviews)
 
 
 
-
 ## Simulation
+
+Simulations!! YES!!
+
+
+### one n
+
+SLR function:
+
+```{r}
+sim_regression = function(n, beta0, beta1) {
+  
+  sim_data = tibble(
+    x = rnorm(n, mean = 1, sd = 1),
+    y = beta0 + beta1 * x + rnorm(n, 0, 1)
+  )
+  
+  ls_fit = lm(y ~ x, data = sim_data)
+  
+  tibble(
+    n = n,
+    beta0_hat = coef(ls_fit)[1],
+    beta1_hat = coef(ls_fit)[2]
+  )
+}
+```
+
+```{r}
+sim_regression(30, 2, 3)
+```
+
+Use a for loop ...
+
+```{r}
+output = vector("list", 100)
+
+for (i in 1:100) {
+  
+  output[[i]] = sim_regression(30, 2, 3)
+  
+}
+
+sim_results = output %>% 
+  bind_rows()
+
+```
+
+```{r}
+sim_results = rerun(100, sim_regression(30, 2, 3)) %>% 
+  bind_rows()
+```
+
+Clear as mud!!
+
+```{r}
+sim_results %>% 
+  ggplot(aes(x = beta0_hat)) + geom_density()
+
+sim_results %>% 
+  gather(key = parameter, value = estimate, beta0_hat:beta1_hat) %>% 
+  group_by(parameter) %>% 
+  summarize(emp_mean = mean(estimate),
+            emp_var = var(estimate)) %>% 
+  knitr::kable(digits = 3)
+
+```
+
+### many n's

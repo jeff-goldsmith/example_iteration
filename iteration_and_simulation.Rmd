@@ -1,0 +1,70 @@
+---
+title: "Iteration and Simulation"
+author: "Jeff Goldsmith"
+date: "11/13/2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(forcats)
+library(stringr)
+
+set.seed(1)
+```
+
+## Iteration
+
+### for loops
+
+Get a df
+
+```{r}
+df = data_frame(
+  a = rnorm(20),
+  b = rnorm(20),
+  c = rnorm(20),
+  d = rnorm(20)
+)
+```
+
+Define a function
+```{r}
+z_score = function(x) {
+  
+  z = mean(x) / sd(x)
+  z
+  
+}
+```
+
+apply that function
+
+```{r}
+z_score(df[[1]])
+z_score(df[[2]])
+z_score(df[[3]])
+z_score(df[[4]])
+```
+
+write a for loop!!!
+
+```{r}
+output = vector("list", length = 4)
+
+for (i in 1:4) {
+  
+  output[[i]] = z_score(df[[i]])
+  
+}
+
+output
+```
+
+
+
+
+
+## Simulation

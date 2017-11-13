@@ -173,6 +173,105 @@ output</code></pre>
 ## [[4]]
 ## [1] 0.09686769</code></pre>
 </div>
+<div id="map-instead-of-for" class="section level3">
+<h3>map instead of for</h3>
+<pre class="r"><code>output = map(df, z_score)</code></pre>
+<pre class="r"><code>output = map(df, mean)
+output = map(df, sd)
+output = map(df, median)</code></pre>
+</div>
+<div id="map-variants" class="section level3">
+<h3>map variants</h3>
+<pre class="r"><code>output = map_dbl(df, z_score)
+output = map_lgl(df, z_score)</code></pre>
+<pre><code>## Error: Can't coerce element 1 from a double to a logical</code></pre>
+<pre class="r"><code>z_score = function(x) {
+  
+  if (!is.numeric(x)) {
+    stop(&quot;argument x should be numeric&quot;)
+  } else if (length(x) == 1) {
+    stop(&quot;z-scores cannot be computed for length 1 vectors&quot;)
+  }
+  
+  mean_x = mean(x)
+  sd_x = sd(x)
+  z = mean_x / sd_x
+  
+  data_frame(
+    mean = mean_x, 
+    sd = sd_x,
+    z = z
+  )
+}</code></pre>
+<pre class="r"><code>z_score(df[[1]])</code></pre>
+<pre><code>## # A tibble: 1 x 3
+##        mean        sd        z
+##       &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;
+## 1 0.1905239 0.9132537 0.208621</code></pre>
+<pre class="r"><code>map_df(df, z_score)</code></pre>
+<pre><code>## # A tibble: 4 x 3
+##           mean        sd            z
+##          &lt;dbl&gt;     &lt;dbl&gt;        &lt;dbl&gt;
+## 1  0.190523876 0.9132537  0.208620969
+## 2 -0.006471519 0.8713652 -0.007426873
+## 3  0.138796773 0.8097234  0.171412571
+## 4  0.101736906 1.0502667  0.096867687</code></pre>
+</div>
+<div id="amazon-scraping" class="section level3">
+<h3>amazon scraping</h3>
+<pre class="r"><code>library(rvest)</code></pre>
+<pre><code>## Loading required package: xml2</code></pre>
+<pre><code>## 
+## Attaching package: 'rvest'</code></pre>
+<pre><code>## The following object is masked from 'package:purrr':
+## 
+##     pluck</code></pre>
+<pre><code>## The following object is masked from 'package:readr':
+## 
+##     guess_encoding</code></pre>
+<pre class="r"><code>library(stringr)
+
+read_page_reviews &lt;- function(url) {
+  
+  h = read_html(url)
+  
+  title = h %&gt;%
+    html_nodes(&quot;#cm_cr-review_list .review-title&quot;) %&gt;%
+    html_text()
+  
+  stars = h %&gt;%
+    html_nodes(&quot;#cm_cr-review_list .review-rating&quot;) %&gt;%
+    html_text() %&gt;%
+    str_extract(&quot;\\d&quot;) %&gt;%
+    as.numeric()
+  
+  text = h %&gt;%
+    html_nodes(&quot;.review-data:nth-child(4)&quot;) %&gt;%
+    html_text()
+  
+  data_frame(title, stars, text)
+}</code></pre>
+<p>scrape a lot of urls</p>
+<pre class="r"><code>url_base = &quot;https://www.amazon.com/product-reviews/B00005JNBQ/ref=cm_cr_arp_d_viewopt_rvwer?ie=UTF8&amp;reviewerType=avp_only_reviews&amp;sortBy=recent&amp;pageNumber=&quot;
+urls = str_c(url_base, 1:10)
+
+# read_page_reviews(urls[[1]])
+# read_page_reviews(urls[[2]])
+# read_page_reviews(urls[[3]])
+# read_page_reviews(urls[[4]])
+# read_page_reviews(urls[[5]])
+
+output = vector(&quot;list&quot;, length = 10)
+
+for (i in 1:10) {
+  
+  output[[i]] = read_page_reviews(urls[[i]])
+  
+}</code></pre>
+<p>Using a map statement.</p>
+<pre class="r"><code>output = map(urls, read_page_reviews)</code></pre>
+<pre class="r"><code>output = map_df(urls, read_page_reviews)</code></pre>
+</div>
 </div>
 <div id="simulation" class="section level2">
 <h2>Simulation</h2>

@@ -63,6 +63,113 @@ for (i in 1:4) {
 output
 ```
 
+### map instead of for
+
+```{r}
+output = map(df, z_score)
+```
+
+```{r}
+output = map(df, mean)
+output = map(df, sd)
+output = map(df, median)
+```
+
+### map variants
+
+```{r, error = TRUE}
+output = map_dbl(df, z_score)
+output = map_lgl(df, z_score)
+
+```
+
+```{r}
+z_score = function(x) {
+  
+  if (!is.numeric(x)) {
+    stop("argument x should be numeric")
+  } else if (length(x) == 1) {
+    stop("z-scores cannot be computed for length 1 vectors")
+  }
+  
+  mean_x = mean(x)
+  sd_x = sd(x)
+  z = mean_x / sd_x
+  
+  data_frame(
+    mean = mean_x, 
+    sd = sd_x,
+    z = z
+  )
+}
+```
+
+
+```{r}
+z_score(df[[1]])
+
+map_df(df, z_score)
+```
+
+
+### amazon scraping
+
+```{r}
+library(rvest)
+library(stringr)
+
+read_page_reviews <- function(url) {
+  
+  h = read_html(url)
+  
+  title = h %>%
+    html_nodes("#cm_cr-review_list .review-title") %>%
+    html_text()
+  
+  stars = h %>%
+    html_nodes("#cm_cr-review_list .review-rating") %>%
+    html_text() %>%
+    str_extract("\\d") %>%
+    as.numeric()
+  
+  text = h %>%
+    html_nodes(".review-data:nth-child(4)") %>%
+    html_text()
+  
+  data_frame(title, stars, text)
+}
+```
+
+scrape a lot of urls
+
+```{r, eval = FALSE}
+url_base = "https://www.amazon.com/product-reviews/B00005JNBQ/ref=cm_cr_arp_d_viewopt_rvwer?ie=UTF8&reviewerType=avp_only_reviews&sortBy=recent&pageNumber="
+urls = str_c(url_base, 1:10)
+
+# read_page_reviews(urls[[1]])
+# read_page_reviews(urls[[2]])
+# read_page_reviews(urls[[3]])
+# read_page_reviews(urls[[4]])
+# read_page_reviews(urls[[5]])
+
+output = vector("list", length = 10)
+
+for (i in 1:10) {
+  
+  output[[i]] = read_page_reviews(urls[[i]])
+  
+}
+```
+
+Using a map statement.
+
+```{r, eval = FALSE}
+output = map(urls, read_page_reviews)
+```
+
+```{r, eval = FALSE}
+output = map_df(urls, read_page_reviews)
+```
 
 
 

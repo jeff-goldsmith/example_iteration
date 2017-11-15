@@ -139,6 +139,118 @@ instacart_nest %>%
 ```
 
 
+### Bootstrapping
+
+```{r}
+set.seed(10)
+
+n_samp = 250
+
+sim_df_const = tibble(
+  x = rnorm(n_samp, 1, 1),
+  error = rnorm(n_samp, 0, 1),
+  y = 2 + 3 * x + error
+)
+
+sim_df_nonconst = sim_df_const %>% 
+  mutate(
+  error = error * .75 * x,
+  y = 2 + 3 * x + error
+)
+
+bind_rows(
+  mutate(sim_df_const, data = "sim_df_const"),
+  mutate(sim_df_nonconst, data = "sim_df_nonconst")
+) %>% 
+  ggplot(aes(x = x, y = y)) + 
+  geom_point(alpha = .5) +
+  stat_smooth(method = "lm") +
+  facet_grid(~data) 
+```
+
+
+lets fit the models
+
+```{r}
+lm(y ~ x, data = sim_df_const) %>% summary()
+lm(y ~ x, data = sim_df_nonconst) %>% summary()
+```
+
+
+### Draw a sample
+
+```{r}
+boot_sample = function(df) {
+  sample_frac(df, replace = TRUE)
+}
+
+boot_sample(sim_df_nonconst)
+
+```
+
+
+
+### Draw lots of samples ...
+
+```{r}
+boot_straps = data_frame(
+  strap_number = 1:1000,
+  strap_sample = rerun(1000, boot_sample(sim_df_nonconst))
+)
+
+boot_straps
+```
+
+
+
+### Analysis of bootstrap samples
+
+```{r}
+boot_results =
+  boot_straps %>% 
+  mutate(models = map(strap_sample, ~lm(y ~ x, data = .x)),
+         results = map(models, broom::tidy)) %>% 
+  select(-strap_sample, -models) %>% 
+  unnest()
+```
+
+
+Check inference ...
+
+```{r}
+
+boot_results %>% 
+  group_by(term) %>% 
+  summarize(se = sd(estimate))
+
+lm(y ~ x, data = sim_df_nonconst) %>% broom::tidy()
+
+
+```
+
+
+### `bootstrap`
+
+```{r}
+library(modelr)
+
+boot_results = 
+  sim_df_const %>% 
+  bootstrap(n = 1000) %>% 
+  mutate(models = map(strap, ~lm(y ~ x, data = .x)),
+         results = map(models, broom::tidy)) %>% 
+  select(-strap, -models) %>% 
+  unnest()
+
+boot_results %>% 
+  group_by(term) %>% 
+  summarize(se = sd(estimate))
+```
+
+
+
+
+
 
 
 
